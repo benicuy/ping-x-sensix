@@ -3,271 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Aim Overlay - Aim Guide & Crosshair</title>
+    <title>FF SensiX Pro - Overlay Aim & Sensitivity</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main Control Panel -->
-    <div class="control-panel" id="controlPanel">
+    <!-- Floating Control Panel (Mirip SensiX) -->
+    <div class="floating-panel" id="floatingPanel">
         <div class="panel-header">
-            <img src="https://i.ibb.co.com/9gQqQ0M/ff-logo.png" alt="FF Logo" class="panel-logo">
-            <h2>FF AIM OVERLAY</h2>
-            <p>v4.0 • Real-time Aim Guide</p>
-            <div class="status-badge" id="overlayStatus">● OVERLAY AKTIF</div>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff6b00'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z'/%3E%3C/svg%3E" alt="logo" class="panel-logo">
+            <h2>FF SENSIX PRO</h2>
+            <span class="version">v4.2.1</span>
+            <div class="drag-handle" id="dragHandle">⋮⋮</div>
         </div>
 
-        <!-- Quick Toggle -->
-        <div class="quick-toggle">
-            <button class="toggle-btn active" onclick="toggleOverlay('aim')" id="aimToggle">
-                <span class="icon">🎯</span>
-                Aim Guide
-            </button>
-            <button class="toggle-btn active" onclick="toggleOverlay('crosshair')" id="crosshairToggle">
-                <span class="icon">⌖</span>
-                Crosshair
-            </button>
-            <button class="toggle-btn active" onclick="toggleOverlay('radar')" id="radarToggle">
-                <span class="icon">📡</span>
-                Radar
-            </button>
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat">
+                <span class="stat-label">FPS</span>
+                <span class="stat-value" id="fpsCounter">60</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">PING</span>
+                <span class="stat-value" id="pingCounter">12</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">HS%</span>
+                <span class="stat-value" id="hsCounter">95</span>
+            </div>
         </div>
 
-        <!-- Aim Settings -->
-        <div class="settings-section">
-            <h3>🎯 AIM GUIDE SETTINGS</h3>
-            
-            <div class="setting-item">
-                <label>Aim Lock Strength</label>
-                <input type="range" id="aimStrength" min="0" max="100" value="85" onchange="updateAimSettings()">
-                <span id="aimStrengthValue">85%</span>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('aim')">🎯 AIM</button>
+            <button class="tab-btn" onclick="switchTab('crosshair')">⌖ CROSSHAIR</button>
+            <button class="tab-btn" onclick="switchTab('sensi')">⚡ SENSI</button>
+            <button class="tab-btn" onclick="switchTab('misc')">🛠️ MISC</button>
+        </div>
+
+        <!-- AIM Tab Content -->
+        <div id="tab-aim" class="tab-content active">
+            <div class="setting-group">
+                <h3>Aim Assist</h3>
+                <div class="toggle-switch">
+                    <span>Aimbot</span>
+                    <label class="switch">
+                        <input type="checkbox" id="aimbotToggle" checked onchange="toggleAimbot()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>Auto Headshot</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autoHSToggle" checked onchange="toggleAutoHS()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>No Recoil</span>
+                    <label class="switch">
+                        <input type="checkbox" id="noRecoilToggle" checked onchange="toggleNoRecoil()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Headshot Priority</label>
-                <input type="range" id="hsPriority" min="0" max="100" value="95" onchange="updateAimSettings()">
-                <span id="hsPriorityValue">95%</span>
+            <div class="setting-group">
+                <h3>Aim Settings</h3>
+                <div class="slider-item">
+                    <label>Aim Strength</label>
+                    <input type="range" id="aimStrength" min="0" max="100" value="85" oninput="updateAimStrength()">
+                    <span id="aimStrengthVal">85%</span>
+                </div>
+                <div class="slider-item">
+                    <label>Headshot Priority</label>
+                    <input type="range" id="hsPriority" min="0" max="100" value="95" oninput="updateHSPriority()">
+                    <span id="hsPriorityVal">95%</span>
+                </div>
+                <div class="slider-item">
+                    <label>Aim Speed</label>
+                    <input type="range" id="aimSpeed" min="1" max="10" value="8" oninput="updateAimSpeed()">
+                    <span id="aimSpeedVal">8/10</span>
+                </div>
+                <div class="slider-item">
+                    <label>Lock Distance</label>
+                    <input type="range" id="lockDistance" min="50" max="300" value="150" oninput="updateLockDistance()">
+                    <span id="lockDistanceVal">150m</span>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Aim Speed</label>
-                <input type="range" id="aimSpeed" min="1" max="10" value="8" onchange="updateAimSettings()">
-                <span id="aimSpeedValue">8/10</span>
-            </div>
-
-            <div class="setting-item">
-                <label>Aim Prediction</label>
-                <select id="aimPrediction" onchange="updateAimSettings()">
-                    <option value="off">Off</option>
-                    <option value="low" selected>Low (Stabil)</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High (Agresif)</option>
+            <div class="setting-group">
+                <h3>Aim Mode</h3>
+                <select id="aimMode" onchange="updateAimMode()" class="styled-select">
+                    <option value="smart">Smart Aim (Default)</option>
+                    <option value="headshot">Headshot Only</option>
+                    <option value="body">Body Shot Priority</option>
+                    <option value="nearest">Nearest Enemy</option>
                 </select>
             </div>
         </div>
 
-        <!-- Crosshair Settings -->
-        <div class="settings-section">
-            <h3>⌖ CROSSHAIR SETTINGS</h3>
-            
-            <div class="setting-item">
-                <label>Crosshair Type</label>
-                <select id="crosshairType" onchange="updateCrosshair()">
-                    <option value="default">Default (+)</option>
-                    <option value="dot" selected>Dot (•)</option>
+        <!-- CROSSHAIR Tab Content -->
+        <div id="tab-crosshair" class="tab-content">
+            <div class="setting-group">
+                <h3>Crosshair Style</h3>
+                <div class="crosshair-preview">
+                    <canvas id="crosshairPreview" width="100" height="100"></canvas>
+                </div>
+                <select id="crosshairType" onchange="updateCrosshair()" class="styled-select">
+                    <option value="dot">Dot (•)</option>
+                    <option value="cross" selected>Cross (+)</option>
                     <option value="circle">Circle</option>
-                    <option value="cross">Cross</option>
                     <option value="t">T-Shape</option>
                     <option value="arrow">Arrow</option>
+                    <option value="default">Default FF</option>
                 </select>
             </div>
 
-            <div class="setting-item">
-                <label>Color</label>
-                <select id="crosshairColor" onchange="updateCrosshair()">
-                    <option value="#00ff00" selected>Hijau Neon</option>
-                    <option value="#ff0000">Merah</option>
-                    <option value="#ffff00">Kuning</option>
-                    <option value="#00ffff">Cyan</option>
-                    <option value="#ff00ff">Magenta</option>
-                    <option value="#ffffff">Putih</option>
-                </select>
+            <div class="setting-group">
+                <h3>Crosshair Color</h3>
+                <div class="color-picker">
+                    <input type="color" id="crosshairColor" value="#00ff00" onchange="updateCrosshair()">
+                    <select id="colorPreset" onchange="applyColorPreset()" class="styled-select">
+                        <option value="#00ff00">Hijau Neon</option>
+                        <option value="#ff0000">Merah</option>
+                        <option value="#ffff00">Kuning</option>
+                        <option value="#00ffff">Cyan</option>
+                        <option value="#ff00ff">Magenta</option>
+                        <option value="#ffffff">Putih</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Size</label>
-                <input type="range" id="crosshairSize" min="10" max="50" value="25" onchange="updateCrosshair()">
-                <span id="crosshairSizeValue">25</span>
+            <div class="setting-group">
+                <h3>Size & Thickness</h3>
+                <div class="slider-item">
+                    <label>Size</label>
+                    <input type="range" id="crossSize" min="10" max="50" value="25" oninput="updateCrosshair()">
+                    <span id="crossSizeVal">25</span>
+                </div>
+                <div class="slider-item">
+                    <label>Thickness</label>
+                    <input type="range" id="crossThickness" min="1" max="5" value="2" oninput="updateCrosshair()">
+                    <span id="crossThicknessVal">2</span>
+                </div>
+                <div class="slider-item">
+                    <label>Gap</label>
+                    <input type="range" id="crossGap" min="0" max="20" value="5" oninput="updateCrosshair()">
+                    <span id="crossGapVal">5</span>
+                </div>
+                <div class="slider-item">
+                    <label>Opacity</label>
+                    <input type="range" id="crossOpacity" min="0.3" max="1" step="0.1" value="0.9" oninput="updateCrosshair()">
+                    <span id="crossOpacityVal">90%</span>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Thickness</label>
-                <input type="range" id="crosshairThickness" min="1" max="5" value="2" onchange="updateCrosshair()">
-                <span id="crosshairThicknessValue">2</span>
-            </div>
-
-            <div class="setting-item">
-                <label>Gap</label>
-                <input type="range" id="crosshairGap" min="0" max="20" value="5" onchange="updateCrosshair()">
-                <span id="crosshairGapValue">5</span>
-            </div>
-
-            <div class="setting-item">
-                <label>Outline</label>
-                <select id="crosshairOutline" onchange="updateCrosshair()">
-                    <option value="none">None</option>
-                    <option value="black" selected>Black</option>
-                    <option value="white">White</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <label>Opacity</label>
-                <input type="range" id="crosshairOpacity" min="0.3" max="1" step="0.1" value="0.9" onchange="updateCrosshair()">
-                <span id="crosshairOpacityValue">90%</span>
+            <div class="setting-group">
+                <h3>Dynamic Effects</h3>
+                <div class="toggle-switch">
+                    <span>Spread Indicator</span>
+                    <label class="switch">
+                        <input type="checkbox" id="spreadIndicator" onchange="updateCrosshair()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>Recoil Animation</span>
+                    <label class="switch">
+                        <input type="checkbox" id="recoilAnim" onchange="updateCrosshair()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>Hit Marker</span>
+                    <label class="switch">
+                        <input type="checkbox" id="hitMarker" checked onchange="updateCrosshair()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
 
-        <!-- Radar Settings -->
-        <div class="settings-section">
-            <h3>📡 RADAR SETTINGS</h3>
-            
-            <div class="setting-item">
-                <label>Radar Size</label>
-                <input type="range" id="radarSize" min="100" max="300" value="200" onchange="updateRadar()">
-                <span id="radarSizeValue">200</span>
+        <!-- SENSI Tab Content -->
+        <div id="tab-sensi" class="tab-content">
+            <div class="setting-group">
+                <h3>Sensitivity Presets</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset('w2e')">W2E</button>
+                    <button class="preset-btn" onclick="loadPreset('djalam')">DJ Alam</button>
+                    <button class="preset-btn" onclick="loadPreset('n0ari')">N0ari</button>
+                    <button class="preset-btn" onclick="loadPreset('sultan')">Sultan</button>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Radar Position</label>
-                <select id="radarPosition" onchange="updateRadar()">
-                    <option value="top-left">Top Left</option>
-                    <option value="top-right" selected>Top Right</option>
-                    <option value="bottom-left">Bottom Left</option>
-                    <option value="bottom-right">Bottom Right</option>
-                </select>
+            <div class="setting-group">
+                <h3>General Sensitivity</h3>
+                <div class="slider-item">
+                    <label>Camera</label>
+                    <input type="range" id="cameraSensi" min="0" max="200" value="95" oninput="updateSensi()">
+                    <span id="cameraSensiVal">95</span>
+                </div>
+                <div class="slider-item">
+                    <label>Red Dot</label>
+                    <input type="range" id="redDotSensi" min="0" max="200" value="92" oninput="updateSensi()">
+                    <span id="redDotSensiVal">92</span>
+                </div>
+                <div class="slider-item">
+                    <label>2x Scope</label>
+                    <input type="range" id="scope2xSensi" min="0" max="200" value="88" oninput="updateSensi()">
+                    <span id="scope2xSensiVal">88</span>
+                </div>
+                <div class="slider-item">
+                    <label>4x Scope</label>
+                    <input type="range" id="scope4xSensi" min="0" max="200" value="72" oninput="updateSensi()">
+                    <span id="scope4xSensiVal">72</span>
+                </div>
+                <div class="slider-item">
+                    <label>Sniper</label>
+                    <input type="range" id="sniperSensi" min="0" max="200" value="55" oninput="updateSensi()">
+                    <span id="sniperSensiVal">55</span>
+                </div>
             </div>
 
-            <div class="setting-item">
-                <label>Show Distance</label>
-                <select id="radarDistance" onchange="updateRadar()">
-                    <option value="yes" selected>Yes</option>
-                    <option value="no">No</option>
-                </select>
-            </div>
-
-            <div class="setting-item">
-                <label>Detection Range</label>
-                <input type="range" id="radarRange" min="50" max="200" value="100" onchange="updateRadar()">
-                <span id="radarRangeValue">100m</span>
+            <div class="setting-group">
+                <h3>ADS Sensitivity</h3>
+                <div class="slider-item">
+                    <label>Red Dot ADS</label>
+                    <input type="range" id="redDotADS" min="0" max="200" value="88" oninput="updateSensi()">
+                    <span id="redDotADSVal">88</span>
+                </div>
+                <div class="slider-item">
+                    <label>2x Scope ADS</label>
+                    <input type="range" id="scope2xADS" min="0" max="200" value="82" oninput="updateSensi()">
+                    <span id="scope2xADSVal">82</span>
+                </div>
+                <div class="slider-item">
+                    <label>4x Scope ADS</label>
+                    <input type="range" id="scope4xADS" min="0" max="200" value="65" oninput="updateSensi()">
+                    <span id="scope4xADSVal">65</span>
+                </div>
             </div>
         </div>
 
-        <!-- Hotkeys -->
-        <div class="settings-section">
-            <h3>⌨️ HOTKEYS</h3>
-            <div class="hotkey-grid">
-                <div class="hotkey-item">
-                    <span>Toggle Aim Guide</span>
-                    <kbd>F1</kbd>
+        <!-- MISC Tab Content -->
+        <div id="tab-misc" class="tab-content">
+            <div class="setting-group">
+                <h3>Visual Enhancements</h3>
+                <div class="toggle-switch">
+                    <span>Enemy Outline</span>
+                    <label class="switch">
+                        <input type="checkbox" id="enemyOutline" checked onchange="toggleEnemyOutline()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="hotkey-item">
-                    <span>Toggle Crosshair</span>
-                    <kbd>F2</kbd>
+                <div class="toggle-switch">
+                    <span>Damage Indicator</span>
+                    <label class="switch">
+                        <input type="checkbox" id="damageIndicator" checked onchange="toggleDamageIndicator()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="hotkey-item">
-                    <span>Toggle Radar</span>
-                    <kbd>F3</kbd>
+                <div class="toggle-switch">
+                    <span>Footstep Enhancer</span>
+                    <label class="switch">
+                        <input type="checkbox" id="footstepEnhancer" onchange="toggleFootstep()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="hotkey-item">
-                    <span>Quick HS Mode</span>
-                    <kbd>F4</kbd>
+            </div>
+
+            <div class="setting-group">
+                <h3>Performance</h3>
+                <div class="toggle-switch">
+                    <span>FPS Booster</span>
+                    <label class="switch">
+                        <input type="checkbox" id="fpsBooster" checked onchange="toggleFPSBooster()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="hotkey-item">
-                    <span>Hide All</span>
-                    <kbd>F5</kbd>
+                <div class="toggle-switch">
+                    <span>RAM Cleaner</span>
+                    <label class="switch">
+                        <input type="checkbox" id="ramCleaner" onchange="toggleRAMCleaner()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="hotkey-item">
-                    <span>Reset Position</span>
-                    <kbd>F6</kbd>
+                <button class="action-btn" onclick="cleanMemory()">🧹 Clean Memory Now</button>
+            </div>
+
+            <div class="setting-group">
+                <h3>Button Tricks</h3>
+                <div class="toggle-switch">
+                    <span>Left Fire Button</span>
+                    <label class="switch">
+                        <input type="checkbox" id="leftFireBtn" checked onchange="toggleLeftFire()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>Quick Gloo Wall</span>
+                    <label class="switch">
+                        <input type="checkbox" id="quickGloo" checked onchange="toggleQuickGloo()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-switch">
+                    <span>Auto Run</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autoRun" onchange="toggleAutoRun()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="action-btn primary" onclick="applySettings()">
-                <span>✅</span> APPLY SETTINGS
-            </button>
-            <button class="action-btn success" onclick="saveProfile()">
-                <span>💾</span> SAVE PROFILE
-            </button>
-            <button class="action-btn warning" onclick="loadProfile()">
-                <span>📂</span> LOAD PROFILE
-            </button>
+        <div class="action-footer">
+            <button class="action-btn primary" onclick="applySettings()">✅ APPLY</button>
+            <button class="action-btn success" onclick="saveProfile()">💾 SAVE</button>
+            <button class="action-btn warning" onclick="loadProfile()">📂 LOAD</button>
+            <button class="action-btn danger" onclick="resetSettings()">↺ RESET</button>
         </div>
 
-        <!-- Mini Preview -->
-        <div class="mini-preview">
-            <h4>Preview</h4>
-            <canvas id="previewCanvas" width="150" height="150"></canvas>
-        </div>
-
-        <!-- Drag Handle -->
-        <div class="drag-handle" id="dragHandle">
-            ⋮⋮
-        </div>
+        <!-- Minimize Button -->
+        <div class="minimize-btn" onclick="toggleMinimize()">−</div>
     </div>
 
-    <!-- MAIN OVERLAY (Always on top) -->
-    <div id="aimOverlay" class="overlay aim-overlay">
-        <!-- Aim Guide Lines -->
-        <div class="aim-guide" id="aimGuide">
-            <div class="guide-line horizontal"></div>
-            <div class="guide-line vertical"></div>
-            <div class="aim-dot" id="aimDot"></div>
-            <div class="headshot-indicator" id="headshotIndicator">🎯</div>
-            <div class="distance-indicator" id="distanceIndicator">50m</div>
-        </div>
-
+    <!-- MAIN OVERLAY (Always on top of game) -->
+    <div id="gameOverlay" class="game-overlay">
         <!-- Dynamic Crosshair -->
-        <div class="crosshair-container" id="crosshairContainer">
-            <canvas id="dynamicCrosshair" width="200" height="200"></canvas>
-        </div>
-
-        <!-- Mini Radar -->
-        <div class="radar-container" id="radarContainer">
-            <canvas id="miniRadar" width="200" height="200"></canvas>
-            <div class="radar-center"></div>
-            <div class="radar-distance" id="radarDistance"></div>
-        </div>
-
+        <canvas id="overlayCrosshair" class="overlay-crosshair"></canvas>
+        
         <!-- Enemy Indicators -->
-        <div class="enemy-indicators" id="enemyIndicators"></div>
-
-        <!-- Movement Guide -->
-        <div class="movement-guide" id="movementGuide">
-            <div class="move-arrow up">↑</div>
-            <div class="move-arrow down">↓</div>
-            <div class="move-arrow left">←</div>
-            <div class="move-arrow right">→</div>
-        </div>
-
-        <!-- Recoil Control -->
-        <div class="recoil-control" id="recoilControl">
-            <div class="recoil-bar"></div>
-        </div>
+        <div id="enemyIndicators" class="enemy-indicators"></div>
+        
+        <!-- Aim Assist Dot -->
+        <div id="aimDot" class="aim-dot"></div>
+        
+        <!-- Headshot Indicator -->
+        <div id="hsIndicator" class="hs-indicator">🎯 HEADSHOT</div>
+        
+        <!-- Hitmarker -->
+        <div id="hitmarker" class="hitmarker">+</div>
+        
+        <!-- Damage Numbers -->
+        <div id="damageNumbers" class="damage-numbers"></div>
+        
+        <!-- FPS Display (small) -->
+        <div id="fpsDisplay" class="fps-display">60 FPS</div>
     </div>
 
-    <!-- Status Indicator (Small) -->
-    <div class="status-indicator" id="statusIndicator">
-        <span class="status-text">AIM READY</span>
-    </div>
-
-    <!-- Console Log -->
-    <div class="console-mini" id="consoleMini">
-        <div class="console-content" id="miniConsole">
-            [System] Overlay aktif
-        </div>
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+        <span>FF SENSIX PRO • ACTIVE</span>
+        <span id="statusTime">12:00</span>
     </div>
 
     <script src="script.js"></script>
