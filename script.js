@@ -1,867 +1,726 @@
-// Preset Data Pro Player
-const presets = {
-    w2e: {
-        name: "W2E Official",
-        camera: 95,
-        redDot: 92,
-        scope2x: 88,
-        scope4x: 72,
-        redDotADS: 88,
-        scope2xADS: 82,
-        scope4xADS: 65,
-        sniper: 55,
-        fireSize: 120,
-        fireTrans: 30,
-        hsSpeed: 9,
-        aimAssist: 90,
-        hsAccuracy: 95,
-        recoil: 98,
-        autoLock: true,
-        instantHS: true,
-        noRecoil: true,
-        magicBullet: true
-    },
-    dj: {
-        name: "DJ Alam",
-        camera: 98,
-        redDot: 95,
-        scope2x: 90,
-        scope4x: 75,
-        redDotADS: 92,
-        scope2xADS: 85,
-        scope4xADS: 70,
-        sniper: 60,
-        fireSize: 130,
-        fireTrans: 25,
-        hsSpeed: 10,
-        aimAssist: 95,
-        hsAccuracy: 98,
-        recoil: 99,
-        autoLock: true,
-        instantHS: true,
-        noRecoil: true,
-        magicBullet: true
-    },
-    n0ari: {
-        name: "N0ari",
-        camera: 92,
-        redDot: 90,
-        scope2x: 85,
-        scope4x: 70,
-        redDotADS: 86,
-        scope2xADS: 80,
-        scope4xADS: 68,
-        sniper: 52,
-        fireSize: 115,
-        fireTrans: 35,
-        hsSpeed: 8,
-        aimAssist: 88,
-        hsAccuracy: 92,
-        recoil: 95,
-        autoLock: true,
-        instantHS: true,
-        noRecoil: true,
-        magicBullet: true
-    },
-    sultan: {
-        name: "Sultan Pro",
-        camera: 100,
-        redDot: 98,
-        scope2x: 92,
-        scope4x: 78,
-        redDotADS: 95,
-        scope2xADS: 88,
-        scope4xADS: 72,
-        sniper: 58,
-        fireSize: 140,
-        fireTrans: 20,
-        hsSpeed: 9,
-        aimAssist: 92,
-        hsAccuracy: 96,
-        recoil: 97,
-        autoLock: true,
-        instantHS: true,
-        noRecoil: true,
-        magicBullet: true
-    },
-    xayne: {
-        name: "Xayne FF",
-        camera: 94,
-        redDot: 91,
-        scope2x: 86,
-        scope4x: 71,
-        redDotADS: 87,
-        scope2xADS: 81,
-        scope4xADS: 66,
-        sniper: 54,
-        fireSize: 125,
-        fireTrans: 28,
-        hsSpeed: 8,
-        aimAssist: 89,
-        hsAccuracy: 93,
-        recoil: 96,
-        autoLock: true,
-        instantHS: true,
-        noRecoil: true,
-        magicBullet: true
-    }
+// Overlay State
+let overlayState = {
+    aim: true,
+    crosshair: true,
+    radar: true
 };
 
-// Weapon specific settings
-const weaponSettings = {
-    m1887: {
-        sensi: 85,
-        ads: 75,
-        pattern: "spread",
-        hsChance: 95
-    },
-    mp40: {
-        sensi: 88,
-        ads: 80,
-        pattern: "up",
-        hsChance: 88
-    },
-    scar: {
-        sensi: 92,
-        ads: 85,
-        pattern: "stable",
-        hsChance: 92
-    },
-    ak: {
-        sensi: 90,
-        ads: 82,
-        pattern: "right",
-        hsChance: 90
-    },
-    m4: {
-        sensi: 94,
-        ads: 88,
-        pattern: "stable",
-        hsChance: 94
-    },
-    sniper: {
-        sensi: 65,
-        ads: 55,
-        pattern: "hold",
-        hsChance: 98
-    }
+// Enemy positions (simulasi)
+let enemies = [
+    { x: 0.3, y: 0.4, distance: 50, health: 100 },
+    { x: 0.7, y: 0.6, distance: 80, health: 100 },
+    { x: 0.5, y: 0.2, distance: 120, health: 100 }
+];
+
+// Crosshair settings
+let crosshairSettings = {
+    type: 'dot',
+    color: '#00ff00',
+    size: 25,
+    thickness: 2,
+    gap: 5,
+    outline: 'black',
+    opacity: 0.9
 };
 
-// State management
-let currentWeapon = 'm1887';
-let consoleCollapsed = false;
-let dragActive = false;
-let currentElement = null;
-let offsetX, offsetY;
+// Aim settings
+let aimSettings = {
+    strength: 85,
+    hsPriority: 95,
+    speed: 8,
+    prediction: 'low'
+};
+
+// Radar settings
+let radarSettings = {
+    size: 200,
+    position: 'top-right',
+    showDistance: 'yes',
+    range: 100
+};
+
+// Mouse position tracking
+let mouseX = 0, mouseY = 0;
+let targetX = 0, targetY = 0;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    setupDragAndDrop();
-    updateCrosshair();
-    startPreviewAnimation();
-    loadSavedSettings();
+    initializeOverlay();
+    setupEventListeners();
+    startOverlayLoop();
+    loadSettings();
 });
 
-// Initialize app
-function initializeApp() {
-    showNotification("🔥 FF Sensi Pro siap digunakan!");
-    addToLog("System initialized - Auto Headshot active");
+// Initialize overlay
+function initializeOverlay() {
+    logToConsole('FF Aim Overlay initialized');
+    logToConsole('Press F1-F6 for hotkeys');
     
-    // Load default preset
-    loadPreset('w2e');
+    // Set initial crosshair
+    updateCrosshair();
     
-    // Setup weapon tabs
-    showWeaponConfig('m1887');
+    // Set initial radar
+    updateRadar();
+    
+    // Start mouse tracking
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
 }
 
-// Load preset
-function loadPreset(presetName) {
-    if(presetName === 'custom') {
-        showNotification("⚙️ Mode custom diaktifkan");
-        addToLog("Custom mode enabled");
-        return;
-    }
+// Setup event listeners
+function setupEventListeners() {
+    // Hotkeys
+    document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+            case 'F1': toggleOverlay('aim'); break;
+            case 'F2': toggleOverlay('crosshair'); break;
+            case 'F3': toggleOverlay('radar'); break;
+            case 'F4': quickHSMode(); break;
+            case 'F5': toggleAllOverlays(); break;
+            case 'F6': resetOverlayPosition(); break;
+        }
+    });
     
-    const preset = presets[presetName];
-    if(!preset) return;
+    // Drag panel
+    const panel = document.getElementById('controlPanel');
+    const handle = document.getElementById('dragHandle');
     
-    // Update all sliders
-    document.getElementById('cameraSensi').value = preset.camera;
-    document.getElementById('cameraValue').textContent = preset.camera;
+    let isDragging = false;
+    let offsetX, offsetY;
     
-    document.getElementById('redDotSensi').value = preset.redDot;
-    document.getElementById('redDotValue').textContent = preset.redDot;
+    handle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - panel.offsetLeft;
+        offsetY = e.clientY - panel.offsetTop;
+        panel.style.cursor = 'grabbing';
+    });
     
-    document.getElementById('scope2xSensi').value = preset.scope2x;
-    document.getElementById('scope2xValue').textContent = preset.scope2x;
+    document.addEventListener('mousemove', (e) => {
+        if(isDragging) {
+            panel.style.left = (e.clientX - offsetX) + 'px';
+            panel.style.top = (e.clientY - offsetY) + 'px';
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+        }
+    });
     
-    document.getElementById('scope4xSensi').value = preset.scope4x;
-    document.getElementById('scope4xValue').textContent = preset.scope4x;
-    
-    document.getElementById('redDotADS').value = preset.redDotADS;
-    document.getElementById('redDotADSValue').textContent = preset.redDotADS;
-    
-    document.getElementById('scope2xADS').value = preset.scope2xADS;
-    document.getElementById('scope2xADSValue').textContent = preset.scope2xADS;
-    
-    document.getElementById('scope4xADS').value = preset.scope4xADS;
-    document.getElementById('scope4xADSValue').textContent = preset.scope4xADS;
-    
-    document.getElementById('sniperSensi').value = preset.sniper;
-    document.getElementById('sniperValue').textContent = preset.sniper;
-    
-    document.getElementById('fireSize').value = preset.fireSize;
-    document.getElementById('fireSizeValue').textContent = preset.fireSize;
-    
-    document.getElementById('fireTrans').value = preset.fireTrans;
-    document.getElementById('fireTransValue').textContent = preset.fireTrans + '%';
-    
-    document.getElementById('hsSpeed').value = preset.hsSpeed;
-    document.getElementById('hsSpeedValue').textContent = preset.hsSpeed + '/10';
-    
-    document.getElementById('aimAssist').value = preset.aimAssist;
-    document.getElementById('aimAssistValue').textContent = preset.aimAssist + '%';
-    
-    document.getElementById('hsAccuracy').value = preset.hsAccuracy;
-    document.getElementById('hsAccuracyValue').textContent = preset.hsAccuracy + '%';
-    
-    document.getElementById('recoilControl').value = preset.recoil;
-    document.getElementById('recoilValue').textContent = preset.recoil + '%';
-    
-    // Update checkboxes
-    document.getElementById('autoLock').checked = preset.autoLock;
-    document.getElementById('instantHS').checked = preset.instantHS;
-    document.getElementById('noRecoil').checked = preset.noRecoil;
-    document.getElementById('magicBullet').checked = preset.magicBullet;
-    
-    // Update preview
-    updatePreview();
-    
-    showNotification(`✅ Preset ${preset.name} dimuat!`);
-    addToLog(`Loaded preset: ${preset.name}`);
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        panel.style.cursor = 'default';
+    });
 }
 
-// Update sensi values
-function updateSensi(type) {
-    switch(type) {
-        case 'camera':
-            document.getElementById('cameraValue').textContent = document.getElementById('cameraSensi').value;
-            break;
-        case 'redDot':
-            document.getElementById('redDotValue').textContent = document.getElementById('redDotSensi').value;
-            break;
-        case '2x':
-            document.getElementById('scope2xValue').textContent = document.getElementById('scope2xSensi').value;
-            break;
-        case '4x':
-            document.getElementById('scope4xValue').textContent = document.getElementById('scope4xSensi').value;
-            break;
-        case 'redDotADS':
-            document.getElementById('redDotADSValue').textContent = document.getElementById('redDotADS').value;
-            break;
-        case '2xADS':
-            document.getElementById('scope2xADSValue').textContent = document.getElementById('scope2xADS').value;
-            break;
-        case '4xADS':
-            document.getElementById('scope4xADSValue').textContent = document.getElementById('scope4xADS').value;
-            break;
-        case 'sniper':
-            document.getElementById('sniperValue').textContent = document.getElementById('sniperSensi').value;
-            break;
-        case 'fireSize':
-            document.getElementById('fireSizeValue').textContent = document.getElementById('fireSize').value;
-            break;
-        case 'fireTrans':
-            document.getElementById('fireTransValue').textContent = document.getElementById('fireTrans').value + '%';
-            break;
-    }
+// Toggle overlay elements
+function toggleOverlay(element) {
+    overlayState[element] = !overlayState[element];
     
-    updatePreview();
-}
-
-// Update headshot settings
-function updateHS(type) {
-    switch(type) {
-        case 'speed':
-            document.getElementById('hsSpeedValue').textContent = document.getElementById('hsSpeed').value + '/10';
-            break;
-        case 'assist':
-            document.getElementById('aimAssistValue').textContent = document.getElementById('aimAssist').value + '%';
-            break;
-        case 'accuracy':
-            document.getElementById('hsAccuracyValue').textContent = document.getElementById('hsAccuracy').value + '%';
-            break;
-        case 'recoil':
-            document.getElementById('recoilValue').textContent = document.getElementById('recoilControl').value + '%';
-            break;
-    }
+    const btn = document.getElementById(element + 'Toggle');
+    const overlay = document.getElementById('aimOverlay');
     
-    updatePreview();
-}
-
-// Toggle auto headshot
-function toggleAutoHS() {
-    const isActive = document.getElementById('autoHS').checked;
-    
-    if(isActive) {
-        showNotification("🎯 Auto Headshot AKTIF!");
-        addToLog("Auto Headshot mode enabled");
+    if(overlayState[element]) {
+        btn.classList.add('active');
+        overlay.style.display = 'block';
+        logToConsole(`${element} overlay activated`);
     } else {
-        showNotification("⏸️ Auto Headshot nonaktif");
-        addToLog("Auto Headshot mode disabled");
+        btn.classList.remove('active');
+        logToConsole(`${element} overlay deactivated`);
     }
+    
+    updateOverlayVisibility();
+}
+
+// Update overlay visibility
+function updateOverlayVisibility() {
+    const aimGuide = document.querySelector('.aim-guide');
+    const crosshair = document.getElementById('crosshairContainer');
+    const radar = document.getElementById('radarContainer');
+    const movement = document.getElementById('movementGuide');
+    const recoil = document.getElementById('recoilControl');
+    
+    aimGuide.style.display = overlayState.aim ? 'block' : 'none';
+    crosshair.style.display = overlayState.crosshair ? 'block' : 'none';
+    radar.style.display = overlayState.radar ? 'block' : 'none';
+    movement.style.display = overlayState.aim ? 'flex' : 'none';
+    recoil.style.display = overlayState.aim ? 'block' : 'none';
+}
+
+// Main overlay loop
+function startOverlayLoop() {
+    setInterval(() => {
+        if(!overlayState.aim && !overlayState.crosshair && !overlayState.radar) return;
+        
+        // Update aim guide
+        if(overlayState.aim) {
+            updateAimGuide();
+            updateEnemyIndicators();
+            updateMovementGuide();
+            updateRecoilControl();
+        }
+        
+        // Update radar
+        if(overlayState.radar) {
+            updateRadarDisplay();
+        }
+        
+        // Update status
+        updateStatusIndicator();
+    }, 16); // ~60fps
+}
+
+// Update aim guide
+function updateAimGuide() {
+    const aimDot = document.getElementById('aimDot');
+    const hsIndicator = document.getElementById('headshotIndicator');
+    const distanceIndicator = document.getElementById('distanceIndicator');
+    
+    // Hitung nearest enemy
+    let nearestEnemy = null;
+    let nearestDistance = Infinity;
+    
+    enemies.forEach(enemy => {
+        // Convert to screen coordinates (simulasi)
+        const enemyScreenX = window.innerWidth * enemy.x;
+        const enemyScreenY = window.innerHeight * enemy.y;
+        
+        const dx = enemyScreenX - mouseX;
+        const dy = enemyScreenY - mouseY;
+        const distance = Math.sqrt(dx*dx + dy*dy);
+        
+        if(distance < nearestDistance) {
+            nearestDistance = distance;
+            nearestEnemy = enemy;
+        }
+    });
+    
+    if(nearestEnemy && nearestDistance < 300) {
+        // Aim lock berdasarkan strength
+        const lockFactor = aimSettings.strength / 100;
+        const targetScreenX = window.innerWidth * nearestEnemy.x;
+        const targetScreenY = window.innerHeight * nearestEnemy.y;
+        
+        // Smooth aim lock
+        targetX += (targetScreenX - targetX) * (aimSettings.speed / 20) * lockFactor;
+        targetY += (targetScreenY - targetY) * (aimSettings.speed / 20) * lockFactor;
+        
+        // Update aim dot position
+        aimDot.style.left = targetX + 'px';
+        aimDot.style.top = targetY + 'px';
+        
+        // Headshot priority
+        const hsChance = aimSettings.hsPriority / 100;
+        if(Math.random() < hsChance && nearestDistance < 200) {
+            hsIndicator.classList.add('active');
+            setTimeout(() => {
+                hsIndicator.classList.remove('active');
+            }, 100);
+        }
+        
+        // Update distance
+        distanceIndicator.textContent = Math.round(nearestEnemy.distance) + 'm';
+        distanceIndicator.style.left = targetX + 'px';
+        distanceIndicator.style.top = (targetY + 30) + 'px';
+    } else {
+        // No enemy, follow mouse
+        targetX = mouseX;
+        targetY = mouseY;
+        aimDot.style.left = mouseX + 'px';
+        aimDot.style.top = mouseY + 'px';
+        distanceIndicator.style.left = mouseX + 'px';
+        distanceIndicator.style.top = (mouseY + 30) + 'px';
+        distanceIndicator.textContent = '0m';
+    }
+}
+
+// Update enemy indicators
+function updateEnemyIndicators() {
+    const container = document.getElementById('enemyIndicators');
+    container.innerHTML = '';
+    
+    enemies.forEach(enemy => {
+        const enemyScreenX = window.innerWidth * enemy.x;
+        const enemyScreenY = window.innerHeight * enemy.y;
+        
+        // Only show if in range
+        const dx = enemyScreenX - mouseX;
+        const dy = enemyScreenY - mouseY;
+        const distance = Math.sqrt(dx*dx + dy*dy);
+        
+        if(distance < radarSettings.range * 10) {
+            const indicator = document.createElement('div');
+            indicator.className = 'enemy-indicator';
+            indicator.style.left = enemyScreenX + 'px';
+            indicator.style.top = enemyScreenY + 'px';
+            
+            const distanceLabel = document.createElement('div');
+            distanceLabel.className = 'enemy-indicator distance';
+            distanceLabel.textContent = Math.round(enemy.distance) + 'm';
+            indicator.appendChild(distanceLabel);
+            
+            container.appendChild(indicator);
+        }
+    });
+}
+
+// Update radar display
+function updateRadarDisplay() {
+    const canvas = document.getElementById('miniRadar');
+    const ctx = canvas.getContext('2d');
+    
+    const size = radarSettings.size;
+    canvas.width = size;
+    canvas.height = size;
+    
+    // Clear radar
+    ctx.clearRect(0, 0, size, size);
+    
+    // Draw radar circles
+    ctx.strokeStyle = '#00ff88';
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.3;
+    
+    for(let i = 1; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, (size/2) * (i/3), 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    
+    // Draw cross lines
+    ctx.beginPath();
+    ctx.moveTo(size/2, 0);
+    ctx.lineTo(size/2, size);
+    ctx.moveTo(0, size/2);
+    ctx.lineTo(size, size/2);
+    ctx.stroke();
+    
+    // Draw enemies on radar
+    ctx.globalAlpha = 1;
+    enemies.forEach(enemy => {
+        // Convert to radar coordinates
+        const dx = (enemy.x - 0.5) * (radarSettings.range / 50);
+        const dy = (enemy.y - 0.5) * (radarSettings.range / 50);
+        
+        const radarX = size/2 + (dx * size/2);
+        const radarY = size/2 + (dy * size/2);
+        
+        // Only show if in range
+        const distance = Math.sqrt(dx*dx + dy*dy) * 50;
+        if(distance <= radarSettings.range) {
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(radarX, radarY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Distance label
+            if(radarSettings.showDistance === 'yes') {
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '8px Arial';
+                ctx.fillText(Math.round(enemy.distance) + 'm', radarX + 10, radarY);
+            }
+        }
+    });
+    
+    // Draw player (center)
+    ctx.fillStyle = '#00ff88';
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, 6, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Update movement guide
+function updateMovementGuide() {
+    const arrows = document.querySelectorAll('.move-arrow');
+    
+    // Simulasi movement berdasarkan mouse
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    const dx = mouseX - centerX;
+    const dy = mouseY - centerY;
+    
+    arrows.forEach(arrow => arrow.classList.remove('active'));
+    
+    if(Math.abs(dx) > Math.abs(dy)) {
+        if(dx > 50) document.querySelector('.move-arrow.right').classList.add('active');
+        if(dx < -50) document.querySelector('.move-arrow.left').classList.add('active');
+    } else {
+        if(dy > 50) document.querySelector('.move-arrow.down').classList.add('active');
+        if(dy < -50) document.querySelector('.move-arrow.up').classList.add('active');
+    }
+}
+
+// Update recoil control
+function updateRecoilControl() {
+    const recoilBar = document.querySelector('.recoil-bar');
+    
+    // Simulasi recoil berdasarkan mouse movement
+    const speed = Math.sqrt(
+        Math.pow(mouseX - lastMouseX || 0, 2) + 
+        Math.pow(mouseY - lastMouseY || 0, 2)
+    );
+    
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+    
+    const recoilAmount = Math.min(100, speed * 2);
+    recoilBar.style.width = recoilAmount + '%';
 }
 
 // Update crosshair
 function updateCrosshair() {
-    const canvas = document.getElementById('crosshairCanvas');
+    const canvas = document.getElementById('dynamicCrosshair');
     const ctx = canvas.getContext('2d');
     
-    const color = document.getElementById('crossColor').value;
-    const size = parseInt(document.getElementById('crossSize').value);
-    const thickness = parseInt(document.getElementById('crossThickness').value);
-    const gap = parseInt(document.getElementById('crossGap').value);
-    const outline = document.getElementById('crossOutline').value;
+    // Get settings
+    crosshairSettings.type = document.getElementById('crosshairType').value;
+    crosshairSettings.color = document.getElementById('crosshairColor').value;
+    crosshairSettings.size = parseInt(document.getElementById('crosshairSize').value);
+    crosshairSettings.thickness = parseInt(document.getElementById('crosshairThickness').value);
+    crosshairSettings.gap = parseInt(document.getElementById('crosshairGap').value);
+    crosshairSettings.outline = document.getElementById('crosshairOutline').value;
+    crosshairSettings.opacity = parseFloat(document.getElementById('crosshairOpacity').value);
     
     // Update display values
-    document.getElementById('crossSizeValue').textContent = size;
-    document.getElementById('crossThicknessValue').textContent = thickness;
-    document.getElementById('crossGapValue').textContent = gap;
+    document.getElementById('crosshairSizeValue').textContent = crosshairSettings.size;
+    document.getElementById('crosshairThicknessValue').textContent = crosshairSettings.thickness;
+    document.getElementById('crosshairGapValue').textContent = crosshairSettings.gap;
+    document.getElementById('crosshairOpacityValue').textContent = Math.round(crosshairSettings.opacity * 100) + '%';
     
     // Clear canvas
-    ctx.clearRect(0, 0, 100, 100);
+    ctx.clearRect(0, 0, 200, 200);
     
-    // Draw crosshair
+    const centerX = 100;
+    const centerY = 100;
+    const size = crosshairSettings.size;
+    const gap = crosshairSettings.gap;
+    const thickness = crosshairSettings.thickness;
+    
     ctx.save();
-    ctx.translate(50, 50);
+    ctx.translate(centerX, centerY);
+    ctx.globalAlpha = crosshairSettings.opacity;
     
-    // Draw outline if selected
-    if(outline !== 'none') {
-        ctx.strokeStyle = outline;
+    // Draw outline
+    if(crosshairSettings.outline !== 'none') {
+        ctx.strokeStyle = crosshairSettings.outline;
         ctx.lineWidth = thickness + 2;
-        
-        // Horizontal lines outline
-        ctx.beginPath();
-        ctx.moveTo(-size - gap, 0);
-        ctx.lineTo(-gap, 0);
-        ctx.moveTo(gap, 0);
-        ctx.lineTo(size + gap, 0);
-        ctx.stroke();
-        
-        // Vertical lines outline
-        ctx.beginPath();
-        ctx.moveTo(0, -size - gap);
-        ctx.lineTo(0, -gap);
-        ctx.moveTo(0, gap);
-        ctx.lineTo(0, size + gap);
-        ctx.stroke();
+        drawCrosshair(ctx, size, gap, true);
     }
     
     // Draw main crosshair
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = crosshairSettings.color;
     ctx.lineWidth = thickness;
-    
-    // Horizontal lines
-    ctx.beginPath();
-    ctx.moveTo(-size - gap, 0);
-    ctx.lineTo(-gap, 0);
-    ctx.moveTo(gap, 0);
-    ctx.lineTo(size + gap, 0);
-    ctx.stroke();
-    
-    // Vertical lines
-    ctx.beginPath();
-    ctx.moveTo(0, -size - gap);
-    ctx.lineTo(0, -gap);
-    ctx.moveTo(0, gap);
-    ctx.lineTo(0, size + gap);
-    ctx.stroke();
-    
-    // Center dot
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(0, 0, thickness, 0, Math.PI * 2);
-    ctx.fill();
+    drawCrosshair(ctx, size, gap, false);
     
     ctx.restore();
+    
+    // Update preview
+    updatePreview();
 }
 
-// Weapon selection
-function selectWeapon(weapon) {
-    currentWeapon = weapon;
+// Draw crosshair based on type
+function drawCrosshair(ctx, size, gap, isOutline) {
+    const type = crosshairSettings.type;
     
-    // Update tabs
-    document.querySelectorAll('.weapon-tab').forEach(tab => {
-        tab.classList.remove('active');
-        if(tab.textContent.toLowerCase().includes(weapon)) {
-            tab.classList.add('active');
-        }
-    });
+    ctx.beginPath();
     
-    showWeaponConfig(weapon);
+    switch(type) {
+        case 'default':
+            // Plus sign
+            ctx.moveTo(-size - gap, 0);
+            ctx.lineTo(-gap, 0);
+            ctx.moveTo(gap, 0);
+            ctx.lineTo(size + gap, 0);
+            ctx.moveTo(0, -size - gap);
+            ctx.lineTo(0, -gap);
+            ctx.moveTo(0, gap);
+            ctx.lineTo(0, size + gap);
+            break;
+            
+        case 'dot':
+            // Just a dot
+            ctx.arc(0, 0, size/4, 0, Math.PI * 2);
+            ctx.fillStyle = isOutline ? crosshairSettings.outline : crosshairSettings.color;
+            ctx.fill();
+            return;
+            
+        case 'circle':
+            // Circle with dot
+            ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+            break;
+            
+        case 'cross':
+            // X shape
+            ctx.moveTo(-size - gap, -size - gap);
+            ctx.lineTo(-gap, -gap);
+            ctx.moveTo(gap, gap);
+            ctx.lineTo(size + gap, size + gap);
+            ctx.moveTo(-size - gap, size + gap);
+            ctx.lineTo(-gap, gap);
+            ctx.moveTo(gap, -gap);
+            ctx.lineTo(size + gap, -size - gap);
+            break;
+            
+        case 't':
+            // T shape
+            ctx.moveTo(-size/2, -size - gap);
+            ctx.lineTo(size/2, -size - gap);
+            ctx.moveTo(0, -size - gap);
+            ctx.lineTo(0, 0);
+            break;
+            
+        case 'arrow':
+            // Arrow
+            ctx.moveTo(0, -size - gap);
+            ctx.lineTo(0, 0);
+            ctx.moveTo(-size/2, -size/2);
+            ctx.lineTo(0, -size - gap);
+            ctx.lineTo(size/2, -size/2);
+            break;
+    }
+    
+    if(isOutline) {
+        ctx.strokeStyle = crosshairSettings.outline;
+        ctx.stroke();
+    } else {
+        ctx.strokeStyle = crosshairSettings.color;
+        ctx.stroke();
+    }
 }
 
-// Show weapon config
-function showWeaponConfig(weapon) {
-    const config = weaponSettings[weapon];
-    const container = document.getElementById('weaponConfig');
+// Update aim settings
+function updateAimSettings() {
+    aimSettings.strength = parseInt(document.getElementById('aimStrength').value);
+    aimSettings.hsPriority = parseInt(document.getElementById('hsPriority').value);
+    aimSettings.speed = parseInt(document.getElementById('aimSpeed').value);
+    aimSettings.prediction = document.getElementById('aimPrediction').value;
     
-    container.innerHTML = `
-        <div class="weapon-details">
-            <div class="detail-item">
-                <span>Optimal Sensi:</span>
-                <span class="value">${config.sensi}</span>
-            </div>
-            <div class="detail-item">
-                <span>ADS Sensi:</span>
-                <span class="value">${config.ads}</span>
-            </div>
-            <div class="detail-item">
-                <span>Recoil Pattern:</span>
-                <span class="value">${config.pattern}</span>
-            </div>
-            <div class="detail-item">
-                <span>Headshot Chance:</span>
-                <span class="value success">${config.hsChance}%</span>
-            </div>
-        </div>
-        <div class="weapon-tip">
-            💡 Tips: ${getWeaponTip(weapon)}
-        </div>
-    `;
+    // Update display values
+    document.getElementById('aimStrengthValue').textContent = aimSettings.strength + '%';
+    document.getElementById('hsPriorityValue').textContent = aimSettings.hsPriority + '%';
+    document.getElementById('aimSpeedValue').textContent = aimSettings.speed + '/10';
+    
+    logToConsole(`Aim settings updated: ${aimSettings.strength}% strength`);
 }
 
-// Get weapon tip
-function getWeaponTip(weapon) {
-    const tips = {
-        m1887: "Tembak sambil bergerak untuk spread maksimal",
-        mp40: "Kontrol recoil ke bawah, cocok untuk noob",
-        scar: "Sangat stabil, burst 2-3 peluru untuk HS",
-        ak: "Tarik ke kanan bawah saat nembak",
-        m4: "Burst 3 peluru, very accurate",
-        sniper: "Hold breath sebelum nembak"
-    };
-    return tips[weapon];
+// Update radar settings
+function updateRadar() {
+    radarSettings.size = parseInt(document.getElementById('radarSize').value);
+    radarSettings.position = document.getElementById('radarPosition').value;
+    radarSettings.showDistance = document.getElementById('radarDistance').value;
+    radarSettings.range = parseInt(document.getElementById('radarRange').value);
+    
+    // Update display
+    document.getElementById('radarSizeValue').textContent = radarSettings.size;
+    document.getElementById('radarRangeValue').textContent = radarSettings.range + 'm';
+    
+    // Update radar container
+    const radar = document.getElementById('radarContainer');
+    radar.className = 'radar-container ' + radarSettings.position;
+    radar.style.width = radarSettings.size + 'px';
+    radar.style.height = radarSettings.size + 'px';
+    
+    logToConsole(`Radar updated: ${radarSettings.position}`);
 }
 
 // Update preview
 function updatePreview() {
-    const hsChance = document.getElementById('hsAccuracy').value;
-    const recoil = document.getElementById('recoilControl').value;
-    const hsSpeed = document.getElementById('hsSpeed').value;
-    
-    document.getElementById('hsChance').textContent = hsChance + '%';
-    document.getElementById('recoilReduction').textContent = recoil + '%';
-    document.getElementById('aimSpeed').textContent = hsSpeed + '/10';
-}
-
-// Start preview animation
-function startPreviewAnimation() {
-    const canvas = document.getElementById('aimPreview');
+    const canvas = document.getElementById('previewCanvas');
     const ctx = canvas.getContext('2d');
     
-    let angle = 0;
+    ctx.clearRect(0, 0, 150, 150);
     
-    setInterval(() => {
-        // Clear canvas
-        ctx.clearRect(0, 0, 400, 300);
-        
-        // Draw target
-        ctx.beginPath();
-        ctx.arc(200, 150, 100, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.arc(200, 150, 50, 0, Math.PI * 2);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.arc(200, 150, 10, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff6b00';
-        ctx.fill();
-        
-        // Draw crosshair
-        const hsActive = document.getElementById('autoHS').checked;
-        const accuracy = parseInt(document.getElementById('hsAccuracy').value) / 100;
-        
-        // Calculate crosshair position with accuracy
-        let x = 200;
-        let y = 150;
-        
-        if(hsActive) {
-            // Aim for head (top of target)
-            y = 100 + (Math.sin(angle) * 5 * (1 - accuracy));
+    // Draw mini crosshair
+    ctx.save();
+    ctx.translate(75, 75);
+    ctx.strokeStyle = crosshairSettings.color;
+    ctx.lineWidth = 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-2, 0);
+    ctx.moveTo(2, 0);
+    ctx.lineTo(10, 0);
+    ctx.moveTo(0, -10);
+    ctx.lineTo(0, -2);
+    ctx.moveTo(0, 2);
+    ctx.lineTo(0, 10);
+    ctx.stroke();
+    
+    ctx.restore();
+}
+
+// Update status indicator
+function updateStatusIndicator() {
+    const status = document.querySelector('.status-text');
+    const activeCount = Object.values(overlayState).filter(v => v).length;
+    
+    if(activeCount === 0) {
+        status.textContent = 'OVERLAY OFF';
+        status.style.color = '#ff4444';
+    } else {
+        status.textContent = `AIM READY (${activeCount}/3)`;
+        status.style.color = '#00ff88';
+    }
+}
+
+// Quick HS Mode
+function quickHSMode() {
+    aimSettings.hsPriority = 100;
+    aimSettings.strength = 95;
+    
+    document.getElementById('hsPriority').value = 100;
+    document.getElementById('aimStrength').value = 95;
+    
+    document.getElementById('hsPriorityValue').textContent = '100%';
+    document.getElementById('aimStrengthValue').textContent = '95%';
+    
+    logToConsole('QUICK HS MODE ACTIVATED - 100% headshot priority');
+    showNotification('🔥 HEADSHOT MODE ACTIVE');
+}
+
+// Toggle all overlays
+function toggleAllOverlays() {
+    const anyActive = Object.values(overlayState).some(v => v);
+    
+    if(anyActive) {
+        overlayState = { aim: false, crosshair: false, radar: false };
+        logToConsole('All overlays hidden');
+    } else {
+        overlayState = { aim: true, crosshair: true, radar: true };
+        logToConsole('All overlays shown');
+    }
+    
+    // Update toggle buttons
+    Object.keys(overlayState).forEach(key => {
+        const btn = document.getElementById(key + 'Toggle');
+        if(overlayState[key]) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
         }
-        
-        ctx.beginPath();
-        ctx.strokeStyle = hsActive ? '#00ff88' : '#ff6b00';
-        ctx.lineWidth = 2;
-        ctx.moveTo(x - 20, y);
-        ctx.lineTo(x - 5, y);
-        ctx.moveTo(x + 5, y);
-        ctx.lineTo(x + 20, y);
-        ctx.moveTo(x, y - 20);
-        ctx.lineTo(x, y - 5);
-        ctx.moveTo(x, y + 5);
-        ctx.lineTo(x, y + 20);
-        ctx.stroke();
-        
-        // Draw bullet holes based on accuracy
-        for(let i = 0; i < 10; i++) {
-            if(Math.random() < accuracy) {
-                // Headshot
-                ctx.fillStyle = '#00ff88';
-                ctx.beginPath();
-                ctx.arc(200 + (Math.random() * 20 - 10), 100 + (Math.random() * 20 - 10), 3, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                // Body shot
-                ctx.fillStyle = '#ffaa00';
-                ctx.beginPath();
-                ctx.arc(200 + (Math.random() * 40 - 20), 150 + (Math.random() * 30 - 15), 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        angle += 0.1;
-    }, 100);
+    });
+    
+    updateOverlayVisibility();
+}
+
+// Reset overlay position
+function resetOverlayPosition() {
+    const panel = document.getElementById('controlPanel');
+    panel.style.left = '20px';
+    panel.style.top = '20px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+    
+    logToConsole('Panel position reset');
 }
 
 // Apply settings
 function applySettings() {
-    showNotification("✅ Settings diterapkan!");
-    addToLog("Settings applied successfully");
+    updateAimSettings();
+    updateCrosshair();
+    updateRadar();
+    showNotification('✅ Settings applied');
+    logToConsole('All settings applied');
 }
 
-// Save to game
-function saveToGame() {
-    showNotification("💾 Settings disimpan ke game!");
-    addToLog("Settings saved to game");
-    
-    // Save to localStorage
-    saveSettings();
-}
-
-// Test sensitivity
-function testSensi() {
-    showNotification("🎯 Testing sensi...");
-    addToLog("Testing sensitivity configuration");
-    
-    // Simulate test
-    setTimeout(() => {
-        const accuracy = document.getElementById('hsAccuracy').value;
-        showNotification(`✅ Hasil test: Headshot rate ${accuracy}%`);
-    }, 2000);
-}
-
-// Reset settings
-function resetSettings() {
-    if(confirm("Reset semua settings?")) {
-        loadPreset('w2e');
-        showNotification("↺ Settings direset ke default");
-        addToLog("Settings reset to default");
-    }
-}
-
-// Drag and drop for layout
-function setupDragAndDrop() {
-    const buttons = document.querySelectorAll('.move-btn');
-    
-    buttons.forEach(btn => {
-        btn.addEventListener('mousedown', startDrag);
-    });
-    
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-}
-
-function startDrag(e) {
-    dragActive = true;
-    currentElement = e.target;
-    
-    const rect = currentElement.getBoundingClientRect();
-    const phoneRect = document.querySelector('.phone-frame').getBoundingClientRect();
-    
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    
-    currentElement.style.cursor = 'grabbing';
-}
-
-function drag(e) {
-    if(!dragActive || !currentElement) return;
-    
-    e.preventDefault();
-    
-    const phoneRect = document.querySelector('.phone-frame').getBoundingClientRect();
-    
-    let newX = e.clientX - phoneRect.left - offsetX;
-    let newY = e.clientY - phoneRect.top - offsetY;
-    
-    // Constrain to phone frame
-    newX = Math.max(0, Math.min(phoneRect.width - currentElement.offsetWidth, newX));
-    newY = Math.max(0, Math.min(phoneRect.height - currentElement.offsetHeight, newY));
-    
-    currentElement.style.left = newX + 'px';
-    currentElement.style.top = newY + 'px';
-}
-
-function stopDrag() {
-    dragActive = false;
-    if(currentElement) {
-        currentElement.style.cursor = 'move';
-        currentElement = null;
-    }
-}
-
-// Reset layout
-function resetLayout() {
-    const fireBtn = document.getElementById('fireBtn');
-    const aimBtn = document.getElementById('aimBtn');
-    const jumpBtn = document.getElementById('jumpBtn');
-    const crouchBtn = document.getElementById('crouchBtn');
-    const proneBtn = document.getElementById('proneBtn');
-    
-    fireBtn.style.bottom = '80px';
-    fireBtn.style.right = '30px';
-    fireBtn.style.left = 'auto';
-    fireBtn.style.top = 'auto';
-    
-    aimBtn.style.bottom = '80px';
-    aimBtn.style.left = '30px';
-    aimBtn.style.right = 'auto';
-    aimBtn.style.top = 'auto';
-    
-    jumpBtn.style.bottom = '150px';
-    jumpBtn.style.left = '30px';
-    
-    crouchBtn.style.bottom = '150px';
-    crouchBtn.style.right = '30px';
-    
-    proneBtn.style.bottom = '220px';
-    proneBtn.style.right = '30px';
-    
-    showNotification("↺ Layout direset");
-    addToLog("Layout reset to default");
-}
-
-// Save layout
-function saveLayout() {
-    const buttons = document.querySelectorAll('.move-btn');
-    const layout = {};
-    
-    buttons.forEach(btn => {
-        layout[btn.id] = {
-            left: btn.style.left,
-            top: btn.style.top,
-            right: btn.style.right,
-            bottom: btn.style.bottom
-        };
-    });
-    
-    localStorage.setItem('ffLayout', JSON.stringify(layout));
-    showNotification("💾 Layout disimpan");
-    addToLog("Layout saved");
-}
-
-// Load pro layout
-function loadProLayout() {
-    // Pro player layout
-    const fireBtn = document.getElementById('fireBtn');
-    const aimBtn = document.getElementById('aimBtn');
-    const jumpBtn = document.getElementById('jumpBtn');
-    const crouchBtn = document.getElementById('crouchBtn');
-    const proneBtn = document.getElementById('proneBtn');
-    
-    fireBtn.style.bottom = '100px';
-    fireBtn.style.right = '40px';
-    
-    aimBtn.style.bottom = '100px';
-    aimBtn.style.left = '50px';
-    
-    jumpBtn.style.bottom = '180px';
-    jumpBtn.style.left = '30px';
-    
-    crouchBtn.style.bottom = '180px';
-    crouchBtn.style.right = '40px';
-    
-    proneBtn.style.bottom = '260px';
-    proneBtn.style.right = '40px';
-    
-    showNotification("👑 Pro player layout dimuat");
-    addToLog("Pro player layout loaded");
-}
-
-// Save all settings
-function saveSettings() {
-    const settings = {
-        sensi: {
-            camera: document.getElementById('cameraSensi').value,
-            redDot: document.getElementById('redDotSensi').value,
-            scope2x: document.getElementById('scope2xSensi').value,
-            scope4x: document.getElementById('scope4xSensi').value,
-            redDotADS: document.getElementById('redDotADS').value,
-            scope2xADS: document.getElementById('scope2xADS').value,
-            scope4xADS: document.getElementById('scope4xADS').value,
-            sniper: document.getElementById('sniperSensi').value,
-            fireSize: document.getElementById('fireSize').value,
-            fireTrans: document.getElementById('fireTrans').value
-        },
-        hs: {
-            speed: document.getElementById('hsSpeed').value,
-            assist: document.getElementById('aimAssist').value,
-            accuracy: document.getElementById('hsAccuracy').value,
-            recoil: document.getElementById('recoilControl').value,
-            autoLock: document.getElementById('autoLock').checked,
-            instantHS: document.getElementById('instantHS').checked,
-            noRecoil: document.getElementById('noRecoil').checked,
-            magicBullet: document.getElementById('magicBullet').checked
-        },
-        crosshair: {
-            color: document.getElementById('crossColor').value,
-            size: document.getElementById('crossSize').value,
-            thickness: document.getElementById('crossThickness').value,
-            gap: document.getElementById('crossGap').value,
-            outline: document.getElementById('crossOutline').value,
-            dynamic: document.getElementById('crossDynamic').value
-        }
+// Save profile
+function saveProfile() {
+    const profile = {
+        aim: aimSettings,
+        crosshair: crosshairSettings,
+        radar: radarSettings,
+        overlay: overlayState
     };
     
-    localStorage.setItem('ffSensi', JSON.stringify(settings));
+    localStorage.setItem('ffAimProfile', JSON.stringify(profile));
+    showNotification('💾 Profile saved');
+    logToConsole('Profile saved to local storage');
 }
 
-// Load saved settings
-function loadSavedSettings() {
-    const saved = localStorage.getItem('ffSensi');
+// Load profile
+function loadProfile() {
+    const saved = localStorage.getItem('ffAimProfile');
     if(saved) {
-        const settings = JSON.parse(saved);
+        const profile = JSON.parse(saved);
         
-        // Load sensi settings
-        document.getElementById('cameraSensi').value = settings.sensi.camera;
-        document.getElementById('cameraValue').textContent = settings.sensi.camera;
+        aimSettings = profile.aim;
+        crosshairSettings = profile.crosshair;
+        radarSettings = profile.radar;
+        overlayState = profile.overlay;
         
-        document.getElementById('redDotSensi').value = settings.sensi.redDot;
-        document.getElementById('redDotValue').textContent = settings.sensi.redDot;
+        // Update UI
+        document.getElementById('aimStrength').value = aimSettings.strength;
+        document.getElementById('hsPriority').value = aimSettings.hsPriority;
+        document.getElementById('aimSpeed').value = aimSettings.speed;
+        document.getElementById('aimPrediction').value = aimSettings.prediction;
         
-        document.getElementById('scope2xSensi').value = settings.sensi.scope2x;
-        document.getElementById('scope2xValue').textContent = settings.sensi.scope2x;
+        document.getElementById('crosshairType').value = crosshairSettings.type;
+        document.getElementById('crosshairColor').value = crosshairSettings.color;
+        document.getElementById('crosshairSize').value = crosshairSettings.size;
+        document.getElementById('crosshairThickness').value = crosshairSettings.thickness;
+        document.getElementById('crosshairGap').value = crosshairSettings.gap;
+        document.getElementById('crosshairOutline').value = crosshairSettings.outline;
+        document.getElementById('crosshairOpacity').value = crosshairSettings.opacity;
         
-        document.getElementById('scope4xSensi').value = settings.sensi.scope4x;
-        document.getElementById('scope4xValue').textContent = settings.sensi.scope4x;
-        
-        document.getElementById('redDotADS').value = settings.sensi.redDotADS;
-        document.getElementById('redDotADSValue').textContent = settings.sensi.redDotADS;
-        
-        document.getElementById('scope2xADS').value = settings.sensi.scope2xADS;
-        document.getElementById('scope2xADSValue').textContent = settings.sensi.scope2xADS;
-        
-        document.getElementById('scope4xADS').value = settings.sensi.scope4xADS;
-        document.getElementById('scope4xADSValue').textContent = settings.sensi.scope4xADS;
-        
-        document.getElementById('sniperSensi').value = settings.sensi.sniper;
-        document.getElementById('sniperValue').textContent = settings.sensi.sniper;
-        
-        document.getElementById('fireSize').value = settings.sensi.fireSize;
-        document.getElementById('fireSizeValue').textContent = settings.sensi.fireSize;
-        
-        document.getElementById('fireTrans').value = settings.sensi.fireTrans;
-        document.getElementById('fireTransValue').textContent = settings.sensi.fireTrans + '%';
-        
-        // Load HS settings
-        document.getElementById('hsSpeed').value = settings.hs.speed;
-        document.getElementById('hsSpeedValue').textContent = settings.hs.speed + '/10';
-        
-        document.getElementById('aimAssist').value = settings.hs.assist;
-        document.getElementById('aimAssistValue').textContent = settings.hs.assist + '%';
-        
-        document.getElementById('hsAccuracy').value = settings.hs.accuracy;
-        document.getElementById('hsAccuracyValue').textContent = settings.hs.accuracy + '%';
-        
-        document.getElementById('recoilControl').value = settings.hs.recoil;
-        document.getElementById('recoilValue').textContent = settings.hs.recoil + '%';
-        
-        document.getElementById('autoLock').checked = settings.hs.autoLock;
-        document.getElementById('instantHS').checked = settings.hs.instantHS;
-        document.getElementById('noRecoil').checked = settings.hs.noRecoil;
-        document.getElementById('magicBullet').checked = settings.hs.magicBullet;
-        
-        // Load crosshair settings
-        document.getElementById('crossColor').value = settings.crosshair.color;
-        document.getElementById('crossSize').value = settings.crosshair.size;
-        document.getElementById('crossThickness').value = settings.crosshair.thickness;
-        document.getElementById('crossGap').value = settings.crosshair.gap;
-        document.getElementById('crossOutline').value = settings.crosshair.outline;
-        document.getElementById('crossDynamic').value = settings.crosshair.dynamic;
+        document.getElementById('radarSize').value = radarSettings.size;
+        document.getElementById('radarPosition').value = radarSettings.position;
+        document.getElementById('radarDistance').value = radarSettings.showDistance;
+        document.getElementById('radarRange').value = radarSettings.range;
         
         updateCrosshair();
-        updatePreview();
+        updateRadar();
+        updateOverlayVisibility();
         
-        addToLog("Saved settings loaded");
-    }
-    
-    // Load layout
-    const savedLayout = localStorage.getItem('ffLayout');
-    if(savedLayout) {
-        const layout = JSON.parse(savedLayout);
-        
-        Object.keys(layout).forEach(id => {
-            const btn = document.getElementById(id);
-            if(btn) {
-                btn.style.left = layout[id].left;
-                btn.style.top = layout[id].top;
-                btn.style.right = layout[id].right;
-                btn.style.bottom = layout[id].bottom;
-            }
-        });
+        showNotification('📂 Profile loaded');
+        logToConsole('Profile loaded from storage');
     }
 }
 
-// Toggle console
-function toggleConsole() {
-    const console = document.querySelector('.console-log');
-    const toggle = document.querySelector('.console-toggle');
-    
-    consoleCollapsed = !consoleCollapsed;
-    
-    if(consoleCollapsed) {
-        console.classList.add('collapsed');
-        toggle.textContent = '▶';
-    } else {
-        console.classList.remove('collapsed');
-        toggle.textContent = '▼';
-    }
+// Load settings from storage
+function loadSettings() {
+    loadProfile();
 }
 
-// Add to log
-function addToLog(message) {
-    const consoleContent = document.getElementById('consoleContent');
+// Log to console
+function logToConsole(message) {
+    const console = document.getElementById('miniConsole');
     const timestamp = new Date().toLocaleTimeString();
     
-    consoleContent.innerHTML = `[${timestamp}] ${message}<br>` + consoleContent.innerHTML;
+    console.innerHTML = `[${timestamp}] ${message}<br>` + console.innerHTML;
     
-    // Limit log entries
-    const lines = consoleContent.innerHTML.split('<br>');
-    if(lines.length > 20) {
+    // Limit lines
+    const lines = console.innerHTML.split('<br>');
+    if(lines.length > 3) {
         lines.pop();
-        consoleContent.innerHTML = lines.join('<br>');
+        console.innerHTML = lines.join('<br>');
     }
 }
 
 // Show notification
 function showNotification(message) {
-    const notification = document.getElementById('notification');
-    document.getElementById('notifMessage').textContent = message;
-    notification.classList.remove('hidden');
+    const status = document.querySelector('.status-text');
+    const originalText = status.textContent;
+    
+    status.textContent = message;
+    status.style.color = '#ffff00';
     
     setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 3000);
+        status.textContent = originalText;
+        status.style.color = '#00ff88';
+    }, 2000);
 }
 
-// Auto-save before unload
-window.addEventListener('beforeunload', function() {
-    saveSettings();
-});
+// Add some test enemies (simulasi)
+setInterval(() => {
+    // Randomize enemy positions sedikit untuk simulasi
+    enemies = enemies.map(enemy => ({
+        x: Math.max(0.1, Math.min(0.9, enemy.x + (Math.random() - 0.5) * 0.02)),
+        y: Math.max(0.1, Math.min(0.9, enemy.y + (Math.random() - 0.5) * 0.02)),
+        distance: enemy.distance + (Math.random() - 0.5) * 5,
+        health: enemy.health
+    }));
+}, 2000);
+
+// Track last mouse position for recoil
+let lastMouseX = 0, lastMouseY = 0;
