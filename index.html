@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF Sensi Pro - Auto Headshot Settings</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="ff-sensi-container">
+        <!-- Header -->
+        <header class="sensi-header">
+            <div class="header-content">
+                <img src="https://i.ibb.co.com/9gQqQ0M/ff-logo.png" alt="FF Logo" class="ff-logo">
+                <h1>FREE FIRE SENSI PRO</h1>
+                <p>Auto Headshot • Sensi Pro Player • Zero Recoil</p>
+                <div class="version-badge">v3.0.1 • Premium Settings</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="sensi-main">
+            <!-- Quick Presets -->
+            <div class="quick-presets">
+                <h2>⚡ QUICK PRESET SENSI PRO PLAYER</h2>
+                <div class="preset-grid">
+                    <div class="preset-card" onclick="loadPreset('w2e')">
+                        <div class="preset-icon">👑</div>
+                        <div class="preset-info">
+                            <h3>W2E (Sensi Official)</h3>
+                            <p>Auto HS • Zero Recoil</p>
+                        </div>
+                        <div class="preset-badge">POPULER</div>
+                    </div>
+
+                    <div class="preset-card" onclick="loadPreset('dj')">
+                        <div class="preset-icon">🎯</div>
+                        <div class="preset-info">
+                            <h3>DJ Alam</h3>
+                            <p>Headshot Machine</p>
+                        </div>
+                        <div class="preset-badge">PRO</div>
+                    </div>
+
+                    <div class="preset-card" onclick="loadPreset('n0ari')">
+                        <div class="preset-icon">⚡</div>
+                        <div class="preset-info">
+                            <h3>N0ari</h3>
+                            <p>Sensi Terbaru 2024</p>
+                        </div>
+                    </div>
+
+                    <div class="preset-card" onclick="loadPreset('sultan')">
+                        <div class="preset-icon">🔥</div>
+                        <div class="preset-info">
+                            <h3>Sultan Pro</h3>
+                            <p>Auto Headshot 100%</p>
+                        </div>
+                    </div>
+
+                    <div class="preset-card" onclick="loadPreset('xayne')">
+                        <div class="preset-icon">🎮</div>
+                        <div class="preset-info">
+                            <h3>Xayne FF</h3>
+                            <p>Sensi Tournament</p>
+                        </div>
+                    </div>
+
+                    <div class="preset-card" onclick="loadPreset('custom')">
+                        <div class="preset-icon">⚙️</div>
+                        <div class="preset-info">
+                            <h3>Custom Settings</h3>
+                            <p>Atur manual</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Settings Panel -->
+            <div class="settings-panel">
+                <div class="panel-header">
+                    <h2>🎯 SENSITIVITY SETTINGS</h2>
+                    <div class="auto-hs-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoHS" checked onchange="toggleAutoHS()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Auto Headshot Mode</span>
+                    </div>
+                </div>
+
+                <!-- Sensitivity Sliders -->
+                <div class="sensitivity-grid">
+                    <!-- General Sensitivity -->
+                    <div class="sensi-card">
+                        <h3>General Sensitivity</h3>
+                        <div class="slider-group">
+                            <label>Camera Sensitivity</label>
+                            <input type="range" id="cameraSensi" min="0" max="200" value="95" oninput="updateSensi('camera')">
+                            <span id="cameraValue">95</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>Red Dot / Holographic</label>
+                            <input type="range" id="redDotSensi" min="0" max="200" value="92" oninput="updateSensi('redDot')">
+                            <span id="redDotValue">92</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>2x Scope</label>
+                            <input type="range" id="scope2xSensi" min="0" max="200" value="88" oninput="updateSensi('2x')">
+                            <span id="scope2xValue">88</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>4x Scope</label>
+                            <input type="range" id="scope4xSensi" min="0" max="200" value="72" oninput="updateSensi('4x')">
+                            <span id="scope4xValue">72</span>
+                        </div>
+                    </div>
+
+                    <!-- ADS Sensitivity -->
+                    <div class="sensi-card">
+                        <h3>ADS Sensitivity</h3>
+                        <div class="slider-group">
+                            <label>Red Dot ADS</label>
+                            <input type="range" id="redDotADS" min="0" max="200" value="88" oninput="updateSensi('redDotADS')">
+                            <span id="redDotADSValue">88</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>2x Scope ADS</label>
+                            <input type="range" id="scope2xADS" min="0" max="200" value="82" oninput="updateSensi('2xADS')">
+                            <span id="scope2xADSValue">82</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>4x Scope ADS</label>
+                            <input type="range" id="scope4xADS" min="0" max="200" value="65" oninput="updateSensi('4xADS')">
+                            <span id="scope4xADSValue">65</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>Sniper Scope</label>
+                            <input type="range" id="sniperSensi" min="0" max="200" value="55" oninput="updateSensi('sniper')">
+                            <span id="sniperValue">55</span>
+                        </div>
+                    </div>
+
+                    <!-- Fire Button Sensitivity -->
+                    <div class="sensi-card">
+                        <h3>Fire Button Sensitivity</h3>
+                        <div class="slider-group">
+                            <label>Fire Button Size</label>
+                            <input type="range" id="fireSize" min="50" max="200" value="120" oninput="updateSensi('fireSize')">
+                            <span id="fireSizeValue">120</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>Fire Button Transparency</label>
+                            <input type="range" id="fireTrans" min="0" max="100" value="30" oninput="updateSensi('fireTrans')">
+                            <span id="fireTransValue">30%</span>
+                        </div>
+                        <div class="slider-group">
+                            <label>Left Fire Button</label>
+                            <select id="leftFire" onchange="updateSensi('leftFire')">
+                                <option value="on">On</option>
+                                <option value="off">Off</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Headshot Settings -->
+                <div class="advanced-settings">
+                    <h3>🔫 AUTO HEADSHOT CONFIGURATION</h3>
+                    
+                    <div class="hs-config-grid">
+                        <div class="config-item">
+                            <label>Headshot Lock Speed</label>
+                            <input type="range" id="hsSpeed" min="1" max="10" value="8" oninput="updateHS('speed')">
+                            <span id="hsSpeedValue">8/10</span>
+                        </div>
+
+                        <div class="config-item">
+                            <label>Aim Assist Strength</label>
+                            <input type="range" id="aimAssist" min="0" max="100" value="85" oninput="updateHS('assist')">
+                            <span id="aimAssistValue">85%</span>
+                        </div>
+
+                        <div class="config-item">
+                            <label>Headshot Accuracy</label>
+                            <input type="range" id="hsAccuracy" min="0" max="100" value="92" oninput="updateHS('accuracy')">
+                            <span id="hsAccuracyValue">92%</span>
+                        </div>
+
+                        <div class="config-item">
+                            <label>Recoil Control</label>
+                            <input type="range" id="recoilControl" min="0" max="100" value="95" oninput="updateHS('recoil')">
+                            <span id="recoilValue">95%</span>
+                        </div>
+                    </div>
+
+                    <div class="hs-options">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="autoLock" checked>
+                            <span>Auto Lock ke Kepala</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="instantHS" checked>
+                            <span>Instant Headshot Mode</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="noRecoil" checked>
+                            <span>No Recoil (Zero Recoil)</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="magicBullet" checked>
+                            <span>Magic Bullet (Peluru Akurat)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Crosshair Settings -->
+                <div class="crosshair-settings">
+                    <h3>🎯 CROSSHAIR CUSTOMIZATION</h3>
+                    
+                    <div class="crosshair-preview">
+                        <canvas id="crosshairCanvas" width="100" height="100"></canvas>
+                    </div>
+
+                    <div class="crosshair-controls">
+                        <div class="control-row">
+                            <label>Crosshair Color</label>
+                            <select id="crossColor" onchange="updateCrosshair()">
+                                <option value="#00ff00">Hijau (Default)</option>
+                                <option value="#ff0000">Merah</option>
+                                <option value="#ffff00">Kuning</option>
+                                <option value="#00ffff">Cyan</option>
+                                <option value="#ff00ff">Magenta</option>
+                                <option value="#ffffff">Putih</option>
+                            </select>
+                        </div>
+
+                        <div class="control-row">
+                            <label>Crosshair Size</label>
+                            <input type="range" id="crossSize" min="2" max="20" value="8" oninput="updateCrosshair()">
+                            <span id="crossSizeValue">8</span>
+                        </div>
+
+                        <div class="control-row">
+                            <label>Crosshair Thickness</label>
+                            <input type="range" id="crossThickness" min="1" max="5" value="2" oninput="updateCrosshair()">
+                            <span id="crossThicknessValue">2</span>
+                        </div>
+
+                        <div class="control-row">
+                            <label>Gap Size</label>
+                            <input type="range" id="crossGap" min="0" max="10" value="3" oninput="updateCrosshair()">
+                            <span id="crossGapValue">3</span>
+                        </div>
+
+                        <div class="control-row">
+                            <label>Outline</label>
+                            <select id="crossOutline" onchange="updateCrosshair()">
+                                <option value="none">None</option>
+                                <option value="black" selected>Black</option>
+                                <option value="white">White</option>
+                            </select>
+                        </div>
+
+                        <div class="control-row">
+                            <label>Dynamic Crosshair</label>
+                            <select id="crossDynamic" onchange="updateCrosshair()">
+                                <option value="off">Off</option>
+                                <option value="on" selected>On (Spread)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Layout -->
+                <div class="control-layout">
+                    <h3>🖐️ CONTROL LAYOUT EDITOR</h3>
+                    
+                    <div class="layout-preview">
+                        <div class="phone-frame">
+                            <div class="control-button move-btn" id="fireBtn" style="bottom: 80px; right: 30px;">🔥</div>
+                            <div class="control-button move-btn" id="aimBtn" style="bottom: 80px; left: 30px;">🎯</div>
+                            <div class="control-button move-btn" id="jumpBtn" style="bottom: 150px; left: 30px;">🦘</div>
+                            <div class="control-button move-btn" id="crouchBtn" style="bottom: 150px; right: 30px;">🪑</div>
+                            <div class="control-button move-btn" id="proneBtn" style="bottom: 220px; right: 30px;">⬇️</div>
+                        </div>
+                    </div>
+
+                    <div class="layout-controls">
+                        <button class="layout-btn" onclick="resetLayout()">↺ Reset Layout</button>
+                        <button class="layout-btn" onclick="saveLayout()">💾 Save Layout</button>
+                        <button class="layout-btn" onclick="loadProLayout()">👑 Load Pro Layout</button>
+                    </div>
+
+                    <div class="layout-tip">
+                        💡 Tip: Klik dan drag tombol untuk mengatur posisi
+                    </div>
+                </div>
+
+                <!-- Weapon Settings -->
+                <div class="weapon-settings">
+                    <h3>🔫 WEAPON SPECIFIC SETTINGS</h3>
+
+                    <div class="weapon-tabs">
+                        <button class="weapon-tab active" onclick="selectWeapon('m1887')">M1887</button>
+                        <button class="weapon-tab" onclick="selectWeapon('mp40')">MP40</button>
+                        <button class="weapon-tab" onclick="selectWeapon('scar')">SCAR</button>
+                        <button class="weapon-tab" onclick="selectWeapon('ak')">AK47</button>
+                        <button class="weapon-tab" onclick="selectWeapon('m4')">M4A1</button>
+                        <button class="weapon-tab" onclick="selectWeapon('sniper')">Sniper</button>
+                    </div>
+
+                    <div class="weapon-config" id="weaponConfig">
+                        <!-- Akan diisi JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="applySettings()">
+                        <span>✅</span> TERAPKAN SETTINGS
+                    </button>
+                    <button class="action-btn success" onclick="saveToGame()">
+                        <span>💾</span> SIMPAN KE GAME
+                    </button>
+                    <button class="action-btn warning" onclick="testSensi()">
+                        <span>🎯</span> TEST SENSI
+                    </button>
+                    <button class="action-btn danger" onclick="resetSettings()">
+                        <span>↺</span> RESET
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="live-preview">
+                <h3>🔴 LIVE PREVIEW</h3>
+                <div class="preview-area" id="previewArea">
+                    <canvas id="aimPreview" width="400" height="300"></canvas>
+                    <div class="preview-stats">
+                        <div class="stat">
+                            <span>Headshot Chance:</span>
+                            <span id="hsChance">92%</span>
+                        </div>
+                        <div class="stat">
+                            <span>Recoil Reduction:</span>
+                            <span id="recoilReduction">95%</span>
+                        </div>
+                        <div class="stat">
+                            <span>Aim Speed:</span>
+                            <span id="aimSpeed">8/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="console-log">
+                <div class="console-header" onclick="toggleConsole()">
+                    <span>📋 System Log</span>
+                    <span class="console-toggle">▼</span>
+                </div>
+                <div id="consoleContent" class="console-content">
+                    [System] FF Sensi Pro v3.0.1 ready<br>
+                    [System] Auto Headshot mode: ACTIVE<br>
+                    [System] Load preset W2E for best results
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="sensi-footer">
+            <p>© 2024 FF Sensi Pro • Auto Headshot Settings • 100% Work</p>
+            <p class="warning">⚠️ Untuk penggunaan yang bijak. Tidak melanggar ToS.</p>
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification hidden">
+        <div class="notif-content">
+            <span class="notif-icon">🎯</span>
+            <span class="notif-message" id="notifMessage"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
